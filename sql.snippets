@@ -1,0 +1,92 @@
+###############################################################################
+#	Some snippets for T-SQL. For use with the snipmate plugin in Vim.
+#
+#	Install: Put this file in ~YourPath~/snipmate.vim/snippets
+# 
+#	There is a mini grammar used by the snippets. Works sort of like Vim does
+#	with things like dw=delete word.
+#		Nouns: tab, col, fk, ind, sp, fn, view, sel, tr
+#		Verbs: (a)lter, (d)rop
+#			   create is implicit, just type the noun
+#		Use: create column = col
+#			 alter column = acol
+#			 drop column = dcol
+#
+#	License: Same as Vim. http://www.vim.org/
+###############################################################################
+
+#select query.
+snippet sel
+	select $2.*
+	from ${1:/*Tab*/} ${2:/*Alias*/}
+	where ${3:0=0}
+
+#create table.
+snippet tab
+	create table dbo.${1:/*Tab*/} (
+		ID bigint identity(1,1) not null,
+		${2:/*cols*/}
+
+		CONSTRAINT PK_$1 primary key clustered (ID asc)
+	);${3}
+	GO
+
+#drop table
+snippet dtab
+	drop table ${1:/*Tab*/};${2}
+
+#truncate table. t as in (t)runcate
+snippet ttab
+	truncate table ${1:/*Tab*/};${2}
+
+#add column, when inside a create-table statement. Default value is left out
+snippet coll
+	${1:/*Col*/} ${2:/*Type*/} not null,${3}
+
+#add column
+snippet col
+	alter table ${1:/*Tab*/} add ${2:/*Col*/} ${3:/*Type*/} not null default(${4:/*DefVal*/});${5}
+
+#alter column
+snippet acol
+	alter table ${1:/*Tab*/} alter column ${2:/*Col*/} ${3:/*Type*/} not null default(${4:/*DefVal*/});${5}
+
+#drop column
+snippet dcol
+	alter table ${1:/*Tab*/} drop column ${2:/*Col*/};${3}
+
+#create index
+snippet ind
+	create index IX_$1_$2 on ${1:/*Tab*/}(${2:/*Col*/});${3}
+
+#drop index
+snippet dind
+	drop index IX_$1_${2} on ${1:/*Tab*/};${3}
+
+#foreign key
+snippet fk
+	alter table ${1:/*FKtab*/} with check add constraint FK_$1_$3
+		foreign key(${2:/*FKcol*/}) references ${3:/*UKtab*/}(${4:/*UKcol*/});${5}
+	GO
+	alter table $1 check constraint FK_$1_$3;
+	GO
+
+#drop foreign key
+snippet dfk
+	alter table ${1:/*FKtab*/} drop FK_$1_${2:/*UKtab*/};${3}
+
+#TODO: stored proc
+
+#TODO: drop stored proc
+
+#TODO: function
+
+#TODO: drop function
+
+#TODO: view
+
+#TODO: drop view
+
+#TODO: trigger
+
+#TODO: drop trigger
