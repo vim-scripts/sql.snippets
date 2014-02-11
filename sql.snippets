@@ -5,7 +5,7 @@
 # 
 #	There is a mini grammar used by the snippets. Works sort of like Vim does
 #	with things like dw=delete word.
-#		Nouns: tab, col, fk, ind, sp, fn, view, sel, tr
+#		Nouns: tab, col, fk, ind, sp, fn, vw, sel, tr
 #		Verbs: (a)lter, (d)rop
 #			   create is implicit, just type the noun
 #		Use: create column = col
@@ -28,8 +28,8 @@ snippet tab
 		${2:/*cols*/}
 
 		CONSTRAINT PK_$1 primary key clustered (ID asc)
-	);${3}
-	GO
+	);
+	GO${3}
 
 #drop table
 snippet dtab
@@ -66,27 +66,71 @@ snippet dind
 #foreign key
 snippet fk
 	alter table ${1:/*FKtab*/} with check add constraint FK_$1_$3
-		foreign key(${2:/*FKcol*/}) references ${3:/*UKtab*/}(${4:/*UKcol*/});${5}
+		foreign key(${2:/*FKcol*/}) references ${3:/*UKtab*/}(${4:/*UKcol*/});
 	GO
 	alter table $1 check constraint FK_$1_$3;
-	GO
+	GO${5}
 
 #drop foreign key
 snippet dfk
 	alter table ${1:/*FKtab*/} drop FK_$1_${2:/*UKtab*/};${3}
 
 #TODO: stored proc
+snippet sp
+	SET ANSI_NULLS ON
+	GO
+	SET QUOTED_IDENTIFIER ON
+	GO
 
-#TODO: drop stored proc
+	create procedure dbo.${1:/*ProcName*/} (
+		@${2:/*param1Name*/} ${3:/*type*/},
+	)
+	as
 
-#TODO: function
+	${4:/*body*/}
+	GO${5}
 
-#TODO: drop function
+#drop stored proc
+snippet dsp
+	drop procedure ${1:/*ProcName*/};
+	GO${2}
 
-#TODO: view
+#alter proc is left out so you don't accidentally erase your proc.
 
-#TODO: drop view
+#function
+snippet fn
+	SET ANSI_NULLS ON
+	GO
+	SET QUOTED_IDENTIFIER ON
+	GO
+
+	create function dbo.${1:/*FuncName*/} (
+		@${3:/*param1Name*/} ${4:/*type*/},${5}
+	)
+	RETURNS ${2:/*ReturnType*/} 
+	as
+
+	/*body*/
+	return /*val*/;
+	GO
+
+#drop function
+snippet dfn
+	drop function ${1:/*FuncName*/};${2}
+
+#view
+snippet vw
+	create view dbo.${1:/*ViewName*/}
+	as
+
+	${2:/*query*/}
+	GO
+
+#drop view
+snippet dvw
+	drop view ${1:/*ViewName*/};${2}
 
 #TODO: trigger
 
 #TODO: drop trigger
+
