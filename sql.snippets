@@ -3,8 +3,8 @@
 #
 #	Install: Put this file in ~YourPath~/snipmate.vim/snippets
 # 
-#	There is a mini grammar used by the snippets. Works sort of like Vim does
-#	with things like dw=delete word.
+#	There is a mini grammar used by the snippets. It works similar to Vim with
+#	things like dw=delete word.
 #		Nouns: tab, col, fk, ind, sp, fn, vw, sel, tr
 #		Verbs: (a)lter, (d)rop
 #			   create is implicit, just type the noun
@@ -75,7 +75,7 @@ snippet fk
 snippet dfk
 	alter table ${1:/*FKtab*/} drop FK_$1_${2:/*UKtab*/};${3}
 
-#TODO: stored proc
+#stored proc
 snippet sp
 	SET ANSI_NULLS ON
 	GO
@@ -130,7 +130,21 @@ snippet vw
 snippet dvw
 	drop view ${1:/*ViewName*/};${2}
 
-#TODO: trigger
+#trigger
+snippet tr
+	create trigger ${1:/*TrigName*/} on dbo.${2:/*Tab*/} for ${3:/*insert, update, delete*/}
+	as
+	${4:/*body*/}
+	GO
 
-#TODO: drop trigger
+#trigger (experimental, doesn't work if on multiple actions)
+snippet trr
+	create trigger tr_$1_$2 on dbo.${1:/*Tab*/} for ${2:/*insert, update, delete*/}
+	as
+	${3:/*body*/}
+	GO
+	
 
+#drop trigger
+snippet dtr
+	drop trigger ${1:/*Trig*/};${2}
