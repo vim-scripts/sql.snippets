@@ -5,7 +5,7 @@
 # 
 #	There is a mini grammar used by the snippets. It works similar to Vim with
 #	things like dw=delete word.
-#		Nouns: tab, col, fk, ind, sp, fn, vw, sel, tr
+#		Nouns: tab, col, fk, ind, sp, fn, vw, sel, tr, uk
 #		Verbs: (a)lter, (d)rop
 #			   create is implicit, just type the noun
 #		Use: create column = col
@@ -74,6 +74,22 @@ snippet fk
 #drop foreign key
 snippet dfk
 	alter table ${1:/*FKtab*/} drop FK_$1_${2:/*UKtab*/};${3}
+
+#check constraint
+snippet ck
+	alter table ${1:/*Tab*/} add constraint CH_$1_${3:/*descr*/} check (${2:/*Conditions*/});${4}
+	
+#drop check constraint
+snippet dck
+	alter table ${1:/*Tab*/} drop constraint CH_$1_${2};${3}
+
+#unique key
+snippet uk
+	alter table ${1:/*Tab*/} add constraint UK_$1_$2 unique (${2:/*Col*/});${3}
+
+#drop unique key
+snippet duk
+	alter table ${1:/*Tab*/} drop constraint UK_$1_${2};${3}
 
 #stored proc
 snippet sp
