@@ -1,12 +1,13 @@
 ###############################################################################
 #	Some snippets for T-SQL. For use with the snipmate plugin in Vim.
 #
-#	Install: Put this file in ~YourPath~/snipmate.vim/snippets
+#	Install: Put this file in ~YourSnippetPath~/snippets
 # 
 #	There is a mini grammar used by the snippets. It works similar to Vim with
 #	things like dw=delete word.
-#		Nouns: tab, col, fk, ind, sp, fn, vw, sel, tr, uk
-#		Verbs: (a)lter, (d)rop
+#		Nouns: tab, col, fk, ind, sp, fn, vw, sel, tr, uk, wh, cur, lj, rh, ij,
+#              fj, cj
+#		Verbs: (a)lter, (d)rop, (e)xists?ThenDelete
 #			   create is implicit, just type the noun
 #		Use: create column = col
 #			 alter column = acol
@@ -14,14 +15,12 @@
 #
 #	License: Same as Vim. http://www.vim.org/
 ###############################################################################
-
-#select query.
+# select query.
 snippet sel
 	select $2.*
 	from ${1:/*Tab*/} ${2:/*Alias*/}
 	where ${3:0=0}
-
-#create table.
+# create table.
 snippet tab
 	create table dbo.${1:/*Tab*/} (
 		ID bigint identity(1,1) not null,
@@ -30,68 +29,53 @@ snippet tab
 		CONSTRAINT PK_$1 primary key clustered (ID asc)
 	);
 	GO${3}
-
-#drop table
+# drop table
 snippet dtab
 	drop table ${1:/*Tab*/};${2}
-
-#truncate table. t as in (t)runcate
+# truncate table. t as in (t)runcate
 snippet ttab
 	truncate table ${1:/*Tab*/};${2}
-
-#add column, when inside a create-table statement. Default value is left out
+# add column, when inside a create-table statement. Default value is left out
 snippet coll
 	${1:/*Col*/} ${2:/*Type*/} not null,${3}
-
-#add column
+# add column
 snippet col
 	alter table ${1:/*Tab*/} add ${2:/*Col*/} ${3:/*Type*/} not null default(${4:/*DefVal*/});${5}
-
-#alter column
+# alter column
 snippet acol
 	alter table ${1:/*Tab*/} alter column ${2:/*Col*/} ${3:/*Type*/} not null default(${4:/*DefVal*/});${5}
-
-#drop column
+# drop column
 snippet dcol
 	alter table ${1:/*Tab*/} drop column ${2:/*Col*/};${3}
-
-#create index
+# create index
 snippet ind
 	create index IX_$1_$2 on ${1:/*Tab*/}(${2:/*Col*/});${3}
-
-#drop index
+# drop index
 snippet dind
 	drop index IX_$1_${2} on ${1:/*Tab*/};${3}
-
-#foreign key
+# foreign key
 snippet fk
 	alter table ${1:/*FKtab*/} with check add constraint FK_$1_$3
 		foreign key(${2:/*FKcol*/}) references ${3:/*UKtab*/}(${4:/*UKcol*/});
 	GO
 	alter table $1 check constraint FK_$1_$3;
 	GO${5}
-
-#drop foreign key
+# drop foreign key
 snippet dfk
 	alter table ${1:/*FKtab*/} drop FK_$1_${2:/*UKtab*/};${3}
-
-#check constraint
+# check constraint
 snippet ck
 	alter table ${1:/*Tab*/} add constraint CH_$1_${3:/*descr*/} check (${2:/*Conditions*/});${4}
-	
-#drop check constraint
+# drop check constraint
 snippet dck
 	alter table ${1:/*Tab*/} drop constraint CH_$1_${2};${3}
-
-#unique key
+# unique key
 snippet uk
 	alter table ${1:/*Tab*/} add constraint UK_$1_$2 unique (${2:/*Col*/});${3}
-
-#drop unique key
+# drop unique key
 snippet duk
 	alter table ${1:/*Tab*/} drop constraint UK_$1_${2};${3}
-
-#stored proc
+# stored proc
 snippet sp
 	SET ANSI_NULLS ON
 	GO
@@ -105,15 +89,12 @@ snippet sp
 
 	${4:/*body*/}
 	GO${5}
-
-#drop stored proc
+# drop stored proc
 snippet dsp
 	drop procedure ${1:/*ProcName*/};
 	GO${2}
-
-#alter proc is left out so you don't accidentally erase your proc.
-
-#function
+# alter proc is left out so you don't accidentally erase your proc.
+# function
 snippet fn
 	SET ANSI_NULLS ON
 	GO
@@ -121,46 +102,84 @@ snippet fn
 	GO
 
 	create function dbo.${1:/*FuncName*/} (
-		@${3:/*param1Name*/} ${4:/*type*/},${5}
+		@${3:/*param1Name*/} ${4:/*type*/}
 	)
 	RETURNS ${2:/*ReturnType*/} 
 	as
 
-	/*body*/
+	${5:/*body*/}
 	return /*val*/;
 	GO
-
-#drop function
+# drop function
 snippet dfn
 	drop function ${1:/*FuncName*/};${2}
-
-#view
+# view
 snippet vw
 	create view dbo.${1:/*ViewName*/}
 	as
 
 	${2:/*query*/}
 	GO
-
-#drop view
+# drop view
 snippet dvw
 	drop view ${1:/*ViewName*/};${2}
-
-#trigger
+# trigger
 snippet tr
 	create trigger ${1:/*TrigName*/} on dbo.${2:/*Tab*/} for ${3:/*insert, update, delete*/}
 	as
 	${4:/*body*/}
 	GO
-
-#trigger (experimental, doesn't work if on multiple actions)
+# trigger (experimental, doesn't work if on multiple actions)
 snippet trr
 	create trigger tr_$1_$2 on dbo.${1:/*Tab*/} for ${2:/*insert, update, delete*/}
 	as
 	${3:/*body*/}
 	GO
-	
-
-#drop trigger
+# drop trigger
 snippet dtr
 	drop trigger ${1:/*Trig*/};${2}
+# exists? then delete trigger
+snippet etr
+	if exists(select null from dbo.sysobjects where name='${1:ObjName}' and OBJECTPROPERTY(id, 'IsTrigger') = 1)
+	begin
+		drop trigger $1;
+	end${2}
+# while loop. NOTE: consider a set-based operation instead of a loop
+snippet wh
+	declare @i int = 0;
+	while @i < ${1:@upper}
+	begin
+		${2:/*body*/}
+		set @i=@i+1;
+	end
+# cursor. Assumes 1 fetch variable, since I don't understand snippets enough to
+# have it fill up properly on multiple variables. 
+# NOTE: consider a set-based operation instead of a cursor
+snippet cur
+	declare @${1:fetchVar} ${2:type};
+	declare ${3:cur} cursor for
+		${4:/*query*/}
+	open cur
+	fetch next from $3 into @$1
+	while @@fetch_status = 0
+	begin
+		${5:/*body*/}
+		fetch next from $3 into @$1
+	end
+	close $3
+	deallocate $3
+# inner join
+snippet ij
+	inner join ${1:/*Tab_A*/} ${2:Alias_A} on $2.${3:key_A}=${4:Tab_B}.${5:key_B}
+# left join
+snippet lj
+	left join ${1:/*Tab_A*/} ${2:Alias_A} on $2.${3:key_A}=${4:Tab_B}.${5:key_B}
+# right join
+snippet rj
+	right join ${1:/*Tab_A*/} ${2:Alias_A} on $2.${3:key_A}=${4:Tab_B}.${5:key_B}
+# full outer join
+snippet fj
+	full outer join ${1:/*Tab_A*/} ${2:Alias_A} on $2.${3:key_A}=${4:Tab_B}.${5:key_B}
+# cross join
+snippet cj
+	cross join ${1:Tab}
