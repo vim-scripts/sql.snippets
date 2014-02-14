@@ -35,9 +35,9 @@ snippet dtab
 # truncate table. t as in (t)runcate
 snippet ttab
 	truncate table ${1:/*Tab*/};${2}
-# add column, when inside a create-table statement. Default value is left out
+# add column, when inside a create-table statement.
 snippet coll
-	${1:/*Col*/} ${2:/*Type*/} not null,${3}
+	${1:/*Col*/} ${2:/*Type*/} not null ${3:default(/*val*/)},${4}
 # add column
 snippet col
 	alter table ${1:/*Tab*/} add ${2:/*Col*/} ${3:/*Type*/} not null default(${4:/*DefVal*/});${5}
@@ -59,6 +59,15 @@ snippet fk
 		foreign key(${2:/*FKcol*/}) references ${3:/*UKtab*/}(${4:/*UKcol*/});
 	GO
 	alter table $1 check constraint FK_$1_$3;
+	GO${5}
+# foreign key and index.
+snippet fki
+	alter table ${1:/*FKtab*/} with check add constraint FK_$1_$3
+		foreign key(${2:/*FKcol*/}) references ${3:/*UKtab*/}(${4:/*UKcol*/});
+	GO
+	alter table $1 check constraint FK_$1_$3;
+	GO
+	create index IX_$1_$2 on $1($2);
 	GO${5}
 # drop foreign key
 snippet dfk
@@ -183,3 +192,47 @@ snippet fj
 # cross join
 snippet cj
 	cross join ${1:Tab}
+# insert
+snippet ins simple insert
+	insert into ${1:Tab}(${2:/*cols*/})
+	values($2);
+snippet inss insert with query
+	insert into dbo.${1:InsTab} (${2:/*cols*/})
+		${3:/*query*/}
+snippet up simple update
+	update ${1:Tab} set
+	${2:col}=@$2
+	where ${3:0=1};${4}
+snippet ups update with a join
+	update $2 set
+		$2.foo = $5.bar
+	from ${1:TargetTab} ${2:TargetAlias}
+	${3:inner join} ${4:Tab} ${5:Alias} on $5.${6:ID} = $2.${7:ID}
+	where ${8:0=1}
+snippet del simple delete
+	delete from ${1:Tab} where ${2:0=1};${3}
+snippet dels delete with join
+	delete $2
+	from ${1:TargetTab} ${2:TargetAlias}
+	${3:inner join} ${4:Tab} ${5:Alias} on $5.${6:ID} = $2.${7:ID}
+	where ${8:0=1}
+snippet cte
+	with ${1:CTE} as (
+		${2:/*CTE query*/}
+	)
+	${3:/*query*/}
+snippet cter recursive cte. Be careful!
+	with ${1:CTE} as (
+		select t.${6:/*cols*/},
+		t.$3, t.$5, 0 as depth
+		from ${2:Tab} t
+		where t.${3:ParentID} ${4:is null}
+
+		union all
+
+		select tt.$6,
+		tt.$3, tt.$5, depth + 1
+		from $2 tt
+		inner join $1 cte on cte.${5:ID}=tt.$3
+	)
+	select * from $1
