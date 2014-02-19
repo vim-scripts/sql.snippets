@@ -263,3 +263,59 @@ snippet cter recursive cte. Be careful!
 		inner join $1 cte on cte.${5:ID}=tt.$3
 	)
 	select * from $1
+snippet page pagination for sql server 2005-2008
+	select *
+	from (
+		select row_number() over (order by ${2:/*Fields*/}) RowNum,
+		${3:*}
+		from ${1:/*Table*/}
+		) as RowNumQuery
+	where RowNum between ${4:low} and ${5:high}
+snippet pagecte pagination with CTE
+	with ${1:RowNumQuery} as (
+		select row_number() over (order by ${3:/*Fields*/}) RowNum,
+		${4:*}
+		from ${2:/*Tab*/}
+	)
+	select ${5:*}
+	from $1
+	where RowNum between ${6:low} and ${7:high}
+snippet page2 pagination for sql server 2012+
+	declare @PageNum int = ${1:1};
+	declare @PageSize int = ${2:20};
+	declare @RowStart int = @PageNum * @PageSize - @PageSize;
+	select ${4:*}
+	from ${3:/*Table*/}
+	order by ${5:/*Fields*/}
+	offset @RowStart rows fetch next @PageSize rows only;${6}
+snippet flag type flags for reference purposes
+	/* AF = Aggregate function (CLR)
+	C = CHECK constraint
+	D = DEFAULT (constraint or stand-alone)
+	F = FOREIGN KEY constraint
+	FN = SQL scalar function
+	FS = Assembly (CLR) scalar-function
+	FT = Assembly (CLR) table-valued function
+	IF = SQL inline table-valued function
+	IT = Internal table
+	P = SQL Stored Procedure
+	PC = Assembly (CLR) stored-procedure
+	PG = Plan guide
+	PK = PRIMARY KEY constraint
+	R = Rule (old-style, stand-alone)
+	RF = Replication-filter-procedure
+	S = System base table
+	SN = Synonym
+	SO = Sequence object
+	SQ = Service queue
+	TA = Assembly (CLR) DML trigger
+	TF = SQL table-valued-function
+	TR = SQL DML trigger 
+	TT = Table type
+	U = Table (user-defined)
+	UQ = UNIQUE constraint
+	V = View
+	X = Extended stored procedure */
+snippet e if exists
+	if object_id('${1:ObjName}', '${2:TypeFlag}') is not null
+		${3:/*HandleExistence*/};
