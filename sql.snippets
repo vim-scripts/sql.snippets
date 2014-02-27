@@ -6,7 +6,7 @@
 #	There is a mini grammar used by the snippets. It works similar to Vim with
 #	things like dw=delete word.
 #		Nouns: tab, col, fk, ind, sp, fn, vw, sel, tr, uk, wh, cur, lj, rh, ij,
-#              fj, cj
+#              fj, cj, ...
 #		Verbs: (a)lter, (d)rop, (e)xists?ThenDelete
 #			   create is implicit, just type the noun
 #		Use: create column = col
@@ -319,3 +319,45 @@ snippet flag type flags for reference purposes
 snippet e if exists
 	if object_id('${1:ObjName}', '${2:TypeFlag}') is not null
 		${3:/*HandleExistence*/};
+snippet if if statement
+	if(${1:0=0})
+	begin
+		${2};
+	end
+snippet el else
+	else
+	begin
+		${1};
+	end
+snippet elif else-if
+	else if(${1:0=0})
+	begin
+		${2};
+	end
+snippet ife if/else
+	if(${1:0=0})
+	begin
+		${2};
+	end
+	else
+	begin
+		${3};
+	end
+#delete the call to raiserror if you want to swallow the exception.
+#NOTE: as of this writing, a finally block is not supported by SQL Server so
+#      you must duplicate any resource clean up
+snippet try
+	BEGIN TRY
+		${1:/*body*/}
+		/* free resources if applicable */
+	END TRY
+	BEGIN CATCH
+		${2:/* handle, free resources, etc */}
+		declare @Number int = ERROR_NUMBER();
+		declare @Severity int = ERROR_SEVERITY();
+		declare @State int = ERROR_STATE();
+		declare @Procedure nvarchar(400) = ERROR_PROCEDURE();
+		declare @Message nvarchar(4000) = ERROR_MESSAGE();
+		${3:/* log error */}
+		${4:raiserror(@Message, @Severity, @State);}
+	END CATCH
