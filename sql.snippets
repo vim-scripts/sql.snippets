@@ -2,7 +2,7 @@
 #	Some snippets for T-SQL. For use with the snipmate plugin in Vim.
 #
 #	Install: Put this file in ~YourSnippetPath~/snippets
-# 
+#
 #	There is a mini grammar used by the snippets. It works similar to Vim with
 #	things like dw=delete word.
 #		Nouns: tab, col, fk, ind, sp, fn, vw, sel, tr, uk, wh, cur, lj, rh, ij,
@@ -31,7 +31,7 @@ snippet tab
 	GO${3}
 # junction table for many-to-many mapping. A sequential ID is used becuase
 # sometimes the juntion is more than a mere implementaiton detail of a
-# many-to-many. It may be an entity in its own right with extra fields and 
+# many-to-many. It may be an entity in its own right with extra fields and
 # other tables referencing it via FK. Double unique keys are created for both
 # directions of the mapping so you're covered no matter which field is used
 # in a join.
@@ -140,7 +140,7 @@ snippet fn
 	create function dbo.${1:/*FuncName*/} (
 		@${3:/*param1Name*/} ${4:/*type*/}
 	)
-	RETURNS ${2:/*ReturnType*/} 
+	RETURNS ${2:/*ReturnType*/}
 	as
 
 	${5:/*body*/}
@@ -189,7 +189,7 @@ snippet wh
 		set @i=@i+1;
 	end
 # cursor. Assumes 1 fetch variable, since I don't understand snippets enough to
-# have it fill up properly on multiple variables. 
+# have it fill up properly on multiple variables.
 # NOTE: consider a set-based operation instead of a cursor
 snippet cur
 	declare @${1:fetchVar} ${2:type};
@@ -226,6 +226,12 @@ snippet ins simple insert
 snippet inss insert with query
 	insert into dbo.${1:InsTab} (${2:/*cols*/})
 		${3:/*query*/}
+snippet insDT insert data from Source to Dest. It will skip records that already exist based on "SomeKey"
+	insert into ${1:Dest} (/*SomeKey, a, b, c*/)
+		select /*SomeKey, a, b, c*/
+		from ${2:Source} ${3:s}
+		left join $1 ${4:d} on $4.${5:SomeKey}=$3.${6:SomeKey}
+		where $4.$5 is null;
 snippet up simple update
 	update ${1:Tab} set
 	${2:col}=@$2
@@ -236,6 +242,11 @@ snippet ups update with a join
 	from ${1:TargetTab} ${2:TargetAlias}
 	${3:inner join} ${4:Tab} ${5:Alias} on $5.${6:ID} = $2.${7:ID}
 	where ${8:0=1}
+snippet upDT update data from Source to Dest based on "SomeKey". To avoid redundant updates when data is the same add a "where" clause.
+	update $2 set
+		$2.${7:col_1} = $4.${8}$7
+	from ${1:Dest} ${2:d}
+	inner join ${3:Source} ${4:s} on $4.${5:SomeKey} = $2.${6:SomeKey};
 snippet del simple delete
 	delete from ${1:Tab} where ${2:0=1};${3}
 snippet dels delete with join
@@ -310,7 +321,7 @@ snippet flag type flags for reference purposes
 	SQ = Service queue
 	TA = Assembly (CLR) DML trigger
 	TF = SQL table-valued-function
-	TR = SQL DML trigger 
+	TR = SQL DML trigger
 	TT = Table type
 	U = Table (user-defined)
 	UQ = UNIQUE constraint
@@ -361,3 +372,15 @@ snippet try
 		${3:/* log error */}
 		${4:raiserror(@Message, @Severity, @State);}
 	END CATCH
+snippet today this snippet is just to remember some syntax
+	declare @today datetime = getdate();
+	declare @todayStart datetime = convert(datetime, DATEDIFF(DAY, 0, @today));
+	declare @todayEnd datetime =  dateadd(second, 86399, @todayStart);
+snippet par this snippet is just to remember some partition syntax
+	with Par as
+	(
+		select t.a, t.b, t.c,
+		ROW_NUMBER() over (partition by t.ParByField order by t.Test) as rn
+		from SomeTable t
+	)
+	select * from Par where rn=1;
